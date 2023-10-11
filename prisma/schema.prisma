@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  	provider = "prisma-client-js"
+}
+datasource db {
+  	provider = "mysql"
+  	url      = env("DATABASE_URL")
+}
+
+model user {
+	id 				BigInt 		@id @default(autoincrement())
+	firstName     	String
+	moddleName    	String
+	lastName      	String
+	mobile        	String
+	email 			String
+	passwordHash 	String
+	registeredAt 	DateTime
+	lastLogin 		DateTime
+	intro 			String 		@db.TinyText
+	profile 		String 		@db.Text
+	post 			post[]
+}
+
+model post {
+  	id 				BigInt 		@id @default(autoincrement())
+	authorId 		BigInt
+	parentId 		BigInt
+  	title 			String
+  	metaTitle 		String
+  	slug 			String
+  	summary 		String 		@db.TinyText
+	published 		String 		@db.TinyText
+	createdAt 		DateTime
+	updatedAt 		DateTime
+	publishedAt 	DateTime
+	content 		String 		@db.Text
+  	User 			user 		@relation(fields: [authorId],references: [id],onDelete: Restrict,onUpdate:Cascade)
+	postComment		post_comment[]
+	postCategory	post_category[]
+	postTag			post_tag[]
+	postMeta		post_meta[]
+}
+
+model category {
+	id 				BigInt 		@id @default(autoincrement())
+	parentId 		BigInt
+	title 			String
+	metaTitle 		String
+	slug 			String
+	content 		String 		@db.Text
+	post_category	post_category[]
+}
+
+model post_category {
+	id 				BigInt 		@id @default(autoincrement())
+	postId 			BigInt
+	categoryId		BigInt
+	postCategory	post 		@relation(fields: [postId],references: [id],onDelete: Restrict,onUpdate:Cascade)
+	category	 	category	@relation(fields: [categoryId],references: [id],onDelete: Restrict,onUpdate:Cascade)
+}
+
+model post_comment {
+	id 				BigInt 		@id @default(autoincrement())
+	postId 			BigInt
+	parentId		BigInt
+	title 			String
+	published 		Int			@db.TinyInt
+	createdAt		DateTime
+	publishedAt		DateTime
+	content 		String 		@db.Text
+	postComment 	post 		@relation(fields: [postId],references: [id],onDelete: Restrict,onUpdate:Cascade)
+}
+
+model post_tag {
+	id 				BigInt 		@id @default(autoincrement())
+	postId 			BigInt
+	tagId			BigInt
+	postTag			post 		@relation(fields: [postId],references: [id],onDelete: Restrict,onUpdate: Cascade)
+	tag				tag 		@relation(fields: [tagId],references: [id],onDelete: Restrict,onUpdate: Cascade)
+}
+
+model post_meta {
+	id 				BigInt 		@id @default(autoincrement())
+	postId 			BigInt
+	key				String
+	content			String		@db.Text
+	post			post		@relation(fields: [postId],references: [id],onDelete: Restrict,onUpdate: Cascade)
+}
+
+model tag {
+	id 				BigInt 		@id @default(autoincrement())
+	title 			String
+	metaTitle		String
+	slug			String
+	content			String		@db.Text
+	postTag			post_tag[]
+}
